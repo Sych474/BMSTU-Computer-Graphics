@@ -1,0 +1,14 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#define FONT_SIZE 14
+#define CONTROL_WIDGET_X 300
+#define ANSVER_WIDGET_Y 100
+#define BORDER 50
+#define PAINTER_TEXT_WIDTH 100
+#define PAINTER_TEXT_HEIGHT 60
+#define ANS_MAX_WIDTH 800
+#define PAINT_FONT_SIZE 12
+#define EPS 0.00001
+
+#endif // CONFIG_H
