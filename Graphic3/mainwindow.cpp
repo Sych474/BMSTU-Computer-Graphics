@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setGeometry(50,50, 1000, 600);
+    this->setGeometry(40,40, 1300, 650);
     QFont font = this->font();
     font.setPointSize(FONT_SIZE);
     this->setFont(font);
@@ -19,15 +19,17 @@ MainWindow::MainWindow(QWidget *parent) :
     main_layout = new QHBoxLayout(this);
     main_widget->setLayout(main_layout);
 
-    // Левая колонка с управлением
-    control_widget = new QControlWidget(this);
-    control_widget->setFixedWidth(CONTROL_WIDGET_X);
-    main_layout->addWidget(control_widget);
-
     scene_layout = new QVBoxLayout(this);
     // Правая часть для отрисовки
     scene_widget = new QPaintWidget(this);
     scene_widget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+
+    // Левая колонка с управлением
+    control_widget = new QControlWidget(this);
+    control_widget->setFixedWidth(CONTROL_WIDGET_X);
+    control_widget->setPw(scene_widget);
+    main_layout->addWidget(control_widget);
+
 
     ansver_text = new QLabel(this);
     ansver_text->setMaximumWidth(ANS_MAX_WIDTH);

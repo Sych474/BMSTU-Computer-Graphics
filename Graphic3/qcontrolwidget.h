@@ -22,6 +22,7 @@
 #include "qlabeledit.h"
 #include "qcoordswidget.h"
 #include "qcolorwidget.h"
+#include "qpaintwidget.h"
 #include "config.h"
 
 class QControlWidget : public QWidget
@@ -62,6 +63,7 @@ private:
     QComboBox *combobox_alg;
     //information
     QMap<QListWidgetItem *,QCoordsWidget *> map;
+    QPaintWidget *pw = NULL;
 private:
     void updateInfo(void);
 
@@ -69,16 +71,17 @@ public:
     explicit QControlWidget(QWidget *parent = 0);
 
 
+    QPaintWidget *getPw() const;
+    void setPw(QPaintWidget *value);
+
 signals:
 
 public slots:
-/*
- *     void onClickedBtnDrawLine(bool);
+    void onClickedBtnDrawLine(bool);
     void onClickedBtnDrawSolar(bool);
-    void onClickedBtnClear(bool);
-    void onClickedBtnBack(bool);
-    void onClickedBtnDraw(bool);
-*/
+    //void onClickedBtnClear(bool);
+    //void onClickedBtnBack(bool);
+    void onClickedBtnSetPixelSize(bool);
 };
 
 #endif // QCONTROLWIDGET_H

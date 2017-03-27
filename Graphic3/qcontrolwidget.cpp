@@ -1,6 +1,26 @@
 #include "qcontrolwidget.h"
 
 
+QPaintWidget *QControlWidget::getPw() const
+{
+    return pw;
+}
+
+void QControlWidget::setPw(QPaintWidget *value)
+{
+    pw = value;
+}
+
+void QControlWidget::onClickedBtnDrawLine(bool)
+{
+
+}
+
+void QControlWidget::onClickedBtnDrawSolar(bool)
+{
+
+}
+
 void QControlWidget::updateInfo()
 {
 
@@ -17,7 +37,7 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     setLayout(main_layout);
 
     //Colors
-    group_colors = new QGroupBox(this);
+    group_colors = new QGroupBox("Настройки", this);
     layout_colors = new QVBoxLayout(this);
     color_fone = new QColorWidget(this);
     color_line = new QColorWidget(this);
@@ -45,7 +65,7 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     group_colors->setLayout(layout_colors);
 
     //Line
-    group_line = new QGroupBox(this);
+    group_line = new QGroupBox("Рисование линии", this);
     layout_line = new QVBoxLayout(this);
     cw_point_1 = new QCoordsWidget(this);
     cw_point_2 = new QCoordsWidget(this);
@@ -58,7 +78,7 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     layout_line->addStretch();
 
     //Solar
-    group_solar = new QGroupBox(this);
+    group_solar = new QGroupBox("Рисование спектра", this);
     layout_solar = new QVBoxLayout(this);
     edit_angle_delta = new QLabelEdit(this);
     edit_angle_delta->setLabelText("Δθ");
@@ -73,7 +93,7 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     layout_solar->addStretch();
 
     //Alg
-    group_alg = new QGroupBox(this);
+    group_alg = new QGroupBox("Выбор алгоритма", this);
     layout_alg = new QVBoxLayout(this);
     combobox_alg = new QComboBox(this);
     combobox_alg->addItem("CDA");
@@ -81,8 +101,6 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     combobox_alg->addItem("Брезенхем (double)");
     combobox_alg->addItem("Брезенхем со сглаживанием");
     combobox_alg->addItem("Стандартный(Qt)");
-    lbl_alg = new QLabel("Алгоритм");
-    layout_alg->addWidget(lbl_alg);
     layout_alg->addWidget(combobox_alg);
     group_alg->setLayout(layout_alg);
 
@@ -96,10 +114,16 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     this->setMinimumHeight(600);
 
     //slots and signals
-    /*connect(this->btn_move, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnMove(bool)));
-    connect(this->btn_scale, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnScale(bool)));
-    connect(this->btn_turn, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnTurn(bool)));
-    connect(this->btn_back, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnBack(bool)));
-    connect(this->btn_draw, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnDraw(bool)));*/
+    connect(this->btn_draw_line, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnDrawLine(bool)));
+    connect(this->btn_draw_solar, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnDrawSolar(bool)));
+    connect(this->btn_set_pixel_size, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnSetPixelSize(bool)));
+}
+
+void QControlWidget::onClickedBtnSetPixelSize(bool)
+{
+    if (!pw) return;
+
+    pw->setPixel_size(edit_pixel_size->getEditText().toInt());
+    pw->repaint();
 }
 

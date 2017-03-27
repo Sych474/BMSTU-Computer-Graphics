@@ -37,6 +37,7 @@ HEADERS  += mainwindow.h \
     qlabeledit.h \
     qpaintwidget.h \
     qcolorwidget.h \
-    config.h
+    config.h \
+    errors.h
 
 FORMS    += mainwindow.ui
