@@ -22,20 +22,47 @@ time_t QPaintWidget::drawCDALine(const QPointF &pb,const QPointF &pe,const QColo
     double dy = (pe.y() - pb.y());
     if (this->is_point(round(dx), round(dy)))
     {
-        painter.drawPoint(round(dx), round(dy));
+        painter.drawPoint(pb);
         return 0;
     }
-    int l = fmax(round(dx), round(dy));
+    double l = fmax(fabs(dx), fabs(dy));
     double x = pb.x();
     double y = pb.y();
     double delta_x = dx/l;
     double delta_y = dy/l;
-    for (int i = 0; i < l+1; ++i)
+    for (int i = 0; (l+1 - i) > EPS; ++i)
     {
-        painter.drawPoint(round(x), round(y));
+        painter.drawPoint(QPointF(x, y));
         x += delta_x;
         y += delta_y;
     }
+    return 0;
+}
+
+time_t QPaintWidget::drawBresenhamDLine(const QPointF &pb, const QPointF &pe, const QColor &color, QPainter &painter)
+{
+    painter.setPen(QPen(color));
+    double delta_x = (pe.x() - pb.x());
+    double delta_y = (pe.y() - pb.y());
+    if (this->is_point(round(delta_x), round(delta_y)))
+    {
+        painter.drawPoint(round(delta_x), round(delta_y));
+        return 0;
+    }
+    //int dx = sign(delta_x);
+    //int dy = sign(delta_y);
+    double x = pb.x();
+    double y = pb.y();
+
+    /*if (dx > dy)
+    {
+
+    }
+    else
+    {
+
+    }
+    */
     return 0;
 }
 
@@ -69,6 +96,35 @@ void QPaintWidget::drawLine(const line_t &line, QPainter &painter)
     }
 }
 
+void QPaintWidget::drawSolar(const solar_t &solar, QPainter &painter)
+{
+    double x_c = this->width()/2/pixel_size;
+    double y_c = this->height()/2/pixel_size;
+    double len = fmin(x_c-4, y_c-4);
+    double x = x_c + len;
+    double y = y_c;
+    double angle = 0;
+    int i = 1;
+    while (abs(angle - 360) > EPS)
+    {
+        x = x_c + len * cos(angle/180 * M_PI);
+        y = y_c + len * sin(angle/180 * M_PI);
+        line_t line = {.pb=QPointF(x_c, y_c), .pe=QPointF(x, y), .color=solar.color, .alg=solar.alg};
+        drawLine(line,painter);
+        angle += solar.teta;
+    }
+}
+
+void QPaintWidget::addLine(line_t &line)
+{
+    lines.push_back(line);
+}
+
+void QPaintWidget::addSolar(solar_t &solar)
+{
+    solars.push_back(solar);
+}
+
 int QPaintWidget::getPixel_size() const
 {
     return pixel_size;
@@ -91,6 +147,8 @@ void QPaintWidget::setFone_color(const QColor &value)
 
 QPaintWidget::QPaintWidget(QWidget *parent) : QWidget(parent)
 {
+    solars.push_back({.color=Qt::black, .alg=alg_CDA, .teta=20});
+    //solars.push_back({.color=Qt::green, .alg=alg_Qt_std, .teta=20});
 
 }
 
@@ -104,15 +162,16 @@ void QPaintWidget::paintEvent(QPaintEvent *event)
     //DRAW
     QPainter painter;
     painter.begin(&image);
+
     for (int i = 0; i < lines.size(); ++i)
     {
         drawLine(lines[i], painter);
     }
-    painter.setPen(QPen(line_color));
-    painter.drawLine(QPointF(10, 10), QPointF(50, 50));
-    drawLine({.pb=QPointF(10, 10), .pe=QPointF(20, 70), .color=Qt::red, .alg=alg_CDA}, painter);
+    for (int i = 0; i < solars.size(); ++i)
+    {
+        drawSolar(solars[i], painter);
+    }
     painter.end();
-
 
     image = image.scaled(image_width * pixel_size, image_height * pixel_size);
     painter.begin(this);

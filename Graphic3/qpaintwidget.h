@@ -10,7 +10,7 @@
 #include <QImage>
 
 #include "printinfo.h"
-//#include "config.h"
+#include "config.h"
 #include "errors.h"
 
 enum alg_t
@@ -31,6 +31,12 @@ struct line_t
 
 };
 
+struct solar_t
+{
+    QColor color;
+    alg_t alg;
+    double teta;
+};
 
 class QPaintWidget : public QWidget
 {
@@ -43,12 +49,15 @@ private:
     time_t drawBresenhamILine(const QPointF &pb, const QPointF &pe, const QColor &color, QPainter &painter);
     time_t drawBresenhamALine(const QPointF &pb, const QPointF &pe, const QColor &color, QPainter &painter);
     void drawLine(const line_t &line, QPainter &painter);
+    void drawSolar(const solar_t &solar, QPainter &painter);
 private:
     int pixel_size = 1;
     QColor fone_color = Qt::white;
-    QColor line_color = Qt::black;
     std::vector<line_t> lines;
+    std::vector<solar_t> solars;
 public:
+    void addLine(line_t &line);
+    void addSolar(solar_t &solar);
     explicit QPaintWidget(QWidget *parent = 0);
     void draw(void);
     QColor getFone_color() const;
