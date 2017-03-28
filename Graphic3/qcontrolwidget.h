@@ -53,8 +53,10 @@ private:
     QGroupBox *group_solar;
     QVBoxLayout *layout_solar;
     QLabelEdit *edit_angle_delta;
-    QPushButton *btn_draw_solar;
-    //QCoordsWidget *cw_solar_senter;
+    QPushButton *btn_draw_solar;\
+
+    QPushButton *btn_clear;
+
 
     //Alg
     QGroupBox *group_alg;
@@ -64,6 +66,7 @@ private:
     //information
     QMap<QListWidgetItem *,QCoordsWidget *> map;
     QPaintWidget *pw = NULL;
+    alg_t sellected_alg = alg_DDA;
 private:
     void updateInfo(void);
 
@@ -79,9 +82,11 @@ signals:
 public slots:
     void onClickedBtnDrawLine(bool);
     void onClickedBtnDrawSolar(bool);
-    //void onClickedBtnClear(bool);
+    void onClickedBtnClear(bool);
     //void onClickedBtnBack(bool);
     void onClickedBtnSetPixelSize(bool);
+    void onFoneColorChanges(const QColor &color);
+    void onAlgCHange(int);
 };
 
 #endif // QCONTROLWIDGET_H

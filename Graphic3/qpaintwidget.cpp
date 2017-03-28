@@ -14,23 +14,23 @@ bool QPaintWidget::is_point(int dx, int dy)
     return true;
 }
 
-time_t QPaintWidget::drawCDALine(const QPointF &pb,const QPointF &pe,const QColor &color, QPainter &painter)
+time_t QPaintWidget::drawCDALine(const QPoint &pb,const QPoint &pe,const QColor &color, QPainter &painter)
 {
     painter.setPen(QPen(color));
 
-    double dx = (pe.x() - pb.x());
-    double dy = (pe.y() - pb.y());
-    if (this->is_point(round(dx), round(dy)))
+    int dx = (pe.x() - pb.x());
+    int dy = (pe.y() - pb.y());
+    if (this->is_point(dx, dy))
     {
         painter.drawPoint(pb);
         return 0;
     }
-    double l = fmax(fabs(dx), fabs(dy));
+    int l = fmax(abs(dx), abs(dy));
     double x = pb.x();
     double y = pb.y();
-    double delta_x = dx/l;
-    double delta_y = dy/l;
-    for (int i = 0; (l+1 - i) > EPS; ++i)
+    double delta_x = dx/(double)l;
+    double delta_y = dy/(double)l;
+    for (int i = 0; i < l+1; ++i)
     {
         painter.drawPoint(QPointF(x, y));
         x += delta_x;
@@ -39,55 +39,215 @@ time_t QPaintWidget::drawCDALine(const QPointF &pb,const QPointF &pe,const QColo
     return 0;
 }
 
-time_t QPaintWidget::drawBresenhamDLine(const QPointF &pb, const QPointF &pe, const QColor &color, QPainter &painter)
+int sign(double num)
+{
+    if (fabs(num) < EPS)
+        return 0;
+    if (num > 0)
+        return 1;
+    else
+        return -1;
+}
+
+template <typename T>
+void my_swap(T &x, T &y)
+{
+    T tmp = x;
+    x = y;
+    y = tmp;
+}
+
+time_t QPaintWidget::drawBresenhamDLine(const QPoint &pb, const QPoint &pe, const QColor &color, QPainter &painter)
 {
     painter.setPen(QPen(color));
-    double delta_x = (pe.x() - pb.x());
-    double delta_y = (pe.y() - pb.y());
-    if (this->is_point(round(delta_x), round(delta_y)))
+    int dx = (pe.x() - pb.x());
+    int dy = (pe.y() - pb.y());
+    if (this->is_point(dx, dy))
     {
-        painter.drawPoint(round(delta_x), round(delta_y));
+        painter.drawPoint(pb);
         return 0;
     }
-    //int dx = sign(delta_x);
-    //int dy = sign(delta_y);
+    int sx = sign(dx);
+    int sy = sign(dy);
+    dx = abs(dx);
+    dy = abs(dy);
+    bool flag = false;
+    if (dx < dy)
+    {
+        flag = true;
+        my_swap(dx, dy);
+    }
+    double m = dy/(double)dx;
+    double e = m - 1/2;
     double x = pb.x();
     double y = pb.y();
 
-    /*if (dx > dy)
+    for (int i = 0; i < dx+1; ++i)
     {
-
+        if (i == dx)
+        {
+            qDebug()<< "draw" << QPoint(round(x), round(y)) << "end" << pe;
+            if ((x) == pe.x() && (y) == pe.y()) qDebug() << "GREAT";
+            else
+            {
+                painter.save();
+                painter.setPen(Qt::red);
+                painter.drawEllipse(QPoint(round(x), round(y)), 2, 2);
+                painter.restore();
+            }
+        }
+        painter.drawPoint(QPoint(round(x), round(y)));
+        if (fabs(e) > EPS && e > 0)
+        {
+            if (flag)
+                x += sx;
+            else
+                y += sy;
+            e -= 1;
+        }
+        if (flag)
+            y += sy;
+        else
+            x += sx;
+        e += m;
     }
-    else
-    {
-
-    }
-    */
     return 0;
 }
 
-time_t QPaintWidget::drawBresenhamILine(const QPointF &pb, const QPointF &pe, const QColor &color, QPainter &painter)
+time_t QPaintWidget::drawBresenhamILine(const QPoint &pb, const QPoint &pe, const QColor &color, QPainter &painter)
 {
+    painter.setPen(QPen(color));
+    int dx = (pe.x() - pb.x());
+    int dy = (pe.y() - pb.y());
+    if (this->is_point(dx, dy))
+    {
+        painter.drawPoint(pb);
+        return 0;
+    }
+    int sx = sign(dx);
+    int sy = sign(dy);
+    dx = abs(dx);
+    dy = abs(dy);
+    bool flag = false;
+    if (dx < dy)
+    {
+        flag = true;
+        my_swap(dx, dy);
+    }
+    int e = 2 * dy - dx;
+    int x = pb.x();
+    int y = pb.y();
 
+    for (int i = 0; i < dx+1; ++i)
+    {
+        if (i == dx)
+        {
+            qDebug()<< "draw" << QPoint(round(x), round(y)) << "end" << pe;
+            if ((x) == pe.x() && (y) == pe.y()) qDebug() << "GREAT";
+            else
+            {
+                painter.save();
+                painter.setPen(Qt::red);
+                painter.drawEllipse(QPoint(round(x), round(y)), 2, 2);
+                painter.restore();
+            }
+        }
+        painter.drawPoint(QPoint(x, y));
+        if (e >= 0)
+        {
+            if (flag)
+                x += sx;
+            else
+                y += sy;
+            e -= dx;
+        }
+        if (flag)
+            y += sy;
+        else
+            x += sx;
+        e += dy;
+    }
+    return 0;
 }
 
-time_t QPaintWidget::drawBresenhamALine(const QPointF &pb, const QPointF &pe, const QColor &color, QPainter &painter)
+time_t QPaintWidget::drawBresenhamALine(const QPoint &pb, const QPoint &pe, const QColor &color, QPainter &painter)
 {
-
+    painter.setPen(QPen(color));
+    int dx = (pe.x() - pb.x());
+    int dy = (pe.y() - pb.y());
+    if (this->is_point(dx, dy))
+    {
+        painter.drawPoint(pb);
+        return 0;
+    }
+    int sx = sign(dx);
+    int sy = sign(dy);
+    dx = abs(dx);
+    dy = abs(dy);
+    bool flag = false;
+    if (dx < dy)
+    {
+        flag = true;
+        my_swap(dx, dy);
+    }
+    double m = dy/(double)dx;
+    double I = 255;
+    double e = I/2;
+    double x = pb.x();
+    double y = pb.y();
+    m = m * I;
+    double w = I - m;
+    for (int i = 0; i < dx+1; ++i)
+    {
+        if (i == dx)
+        {
+            qDebug()<< "draw" << QPoint(round(x), round(y)) << "end" << pe;
+            if ((x) == pe.x() && (y) == pe.y()) qDebug() << "GREAT";
+            else
+            {
+                painter.save();
+                painter.setPen(Qt::red);
+                painter.drawEllipse(QPoint(round(x), round(y)), 2, 2);
+                painter.restore();
+            }
+        }
+        QColor c = color;
+        c.setAlpha(e);
+        painter.setPen(QPen(c));
+        painter.drawPoint(QPoint(round(x), round(y)));
+        if (fabs(e  - w) > EPS && e > w)
+        {
+            if (flag)
+                x += sx;
+            else
+                y += sy;
+            e -= w;
+        }
+        else
+            e += m;
+        if (flag)
+            y += sy;
+        else
+            x += sx;
+    }
+    return 0;
 }
 
 void QPaintWidget::drawLine(const line_t &line, QPainter &painter)
 {
     switch (line.alg)
     {
-    case alg_CDA:
+    case alg_DDA:
         this->drawCDALine(line.pb, line.pe, line.color, painter);
         break;
     case alg_Bresenham_int:
+        this->drawBresenhamILine(line.pb, line.pe, line.color, painter);
         break;
     case alg_Bresenham_double:
+        this->drawBresenhamDLine(line.pb, line.pe, line.color, painter);
         break;
     case alg_Bresenham_alias:
+        this->drawBresenhamALine(line.pb, line.pe, line.color, painter);
         break;
     case alg_Qt_std:
         painter.setPen(QPen(line.color));
@@ -100,16 +260,15 @@ void QPaintWidget::drawSolar(const solar_t &solar, QPainter &painter)
 {
     double x_c = this->width()/2/pixel_size;
     double y_c = this->height()/2/pixel_size;
-    double len = fmin(x_c-4, y_c-4);
+    double len = fmin(x_c-BORDER, y_c-BORDER);
     double x = x_c + len;
     double y = y_c;
     double angle = 0;
-    int i = 1;
-    while (abs(angle - 360) > EPS)
+    while (fabs(angle) < 360)
     {
-        x = x_c + len * cos(angle/180 * M_PI);
-        y = y_c + len * sin(angle/180 * M_PI);
-        line_t line = {.pb=QPointF(x_c, y_c), .pe=QPointF(x, y), .color=solar.color, .alg=solar.alg};
+        x = round(x_c + len * cos(angle/180 * M_PI));
+        y = round(y_c + len * sin(angle/180 * M_PI));
+        line_t line = {.pb=QPoint(x_c, y_c), .pe=QPoint(x, y), .color=solar.color, .alg=solar.alg};
         drawLine(line,painter);
         angle += solar.teta;
     }
@@ -145,10 +304,14 @@ void QPaintWidget::setFone_color(const QColor &value)
     fone_color = value;
 }
 
+void QPaintWidget::clear()
+{
+    lines.clear();
+    solars.clear();
+}
+
 QPaintWidget::QPaintWidget(QWidget *parent) : QWidget(parent)
 {
-    solars.push_back({.color=Qt::black, .alg=alg_CDA, .teta=20});
-    //solars.push_back({.color=Qt::green, .alg=alg_Qt_std, .teta=20});
 
 }
 

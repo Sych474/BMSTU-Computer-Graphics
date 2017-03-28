@@ -56,6 +56,16 @@ double QCoordsWidget::getY(void)
     return edit_y->getEditText().replace(",",".").toDouble();
 }
 
+QPointF QCoordsWidget::getPointF()
+{
+    return QPointF(edit_x->getEditText().toDouble(), edit_y->getEditText().toDouble());
+}
+
+QPoint QCoordsWidget::getPoint()
+{
+    return QPoint(round(edit_x->getEditText().toDouble()), round(edit_y->getEditText().toDouble()));
+}
+
 void QCoordsWidget::changeEditText(QString str)
 {
     emit edited();

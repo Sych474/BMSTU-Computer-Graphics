@@ -24,7 +24,8 @@ public:
     void setLabelText(QString);
     double getX(void);
     double getY(void);
-
+    QPointF getPointF(void);
+    QPoint getPoint(void);
 
 signals:
     void edited(void);

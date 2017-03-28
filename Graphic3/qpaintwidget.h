@@ -15,17 +15,17 @@
 
 enum alg_t
 {
-    alg_CDA,
-    alg_Bresenham_int,
+    alg_DDA,
     alg_Bresenham_double,
+    alg_Bresenham_int,
     alg_Bresenham_alias,
     alg_Qt_std,
 };
 
 struct line_t
 {
-    QPointF pb;
-    QPointF pe;
+    QPoint pb;
+    QPoint pe;
     QColor color;
     alg_t alg;
 
@@ -44,10 +44,10 @@ class QPaintWidget : public QWidget
 
 private:
     bool is_point(int dx, int dy);
-    time_t drawCDALine(const QPointF &pb, const QPointF &pe, const QColor &color, QPainter &painter);
-    time_t drawBresenhamDLine(const QPointF &pb, const QPointF &pe, const QColor &color, QPainter &painter);
-    time_t drawBresenhamILine(const QPointF &pb, const QPointF &pe, const QColor &color, QPainter &painter);
-    time_t drawBresenhamALine(const QPointF &pb, const QPointF &pe, const QColor &color, QPainter &painter);
+    time_t drawCDALine(const QPoint &pb, const QPoint &pe, const QColor &color, QPainter &painter);
+    time_t drawBresenhamDLine(const QPoint &pb, const QPoint &pe, const QColor &color, QPainter &painter);
+    time_t drawBresenhamILine(const QPoint &pb, const QPoint &pe, const QColor &color, QPainter &painter);
+    time_t drawBresenhamALine(const QPoint &pb, const QPoint &pe, const QColor &color, QPainter &painter);
     void drawLine(const line_t &line, QPainter &painter);
     void drawSolar(const solar_t &solar, QPainter &painter);
 private:
@@ -62,7 +62,7 @@ public:
     void draw(void);
     QColor getFone_color() const;
     void setFone_color(const QColor &value);
-
+    void clear(void);
     int getPixel_size() const;
     void setPixel_size(int value);
 

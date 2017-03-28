@@ -13,12 +13,27 @@ void QControlWidget::setPw(QPaintWidget *value)
 
 void QControlWidget::onClickedBtnDrawLine(bool)
 {
-
+    line_t line = {.pb=cw_point_1->getPoint(), .pe=cw_point_2->getPoint(), .color=color_line->getColor(), .alg=sellected_alg};
+    pw->addLine(line);
+    pw->repaint();
 }
 
 void QControlWidget::onClickedBtnDrawSolar(bool)
 {
+    double angle = edit_angle_delta->getEditText().toDouble();
+    QColor color = color_line->getColor();
+    solar_t solar = {};
+    solar.alg = sellected_alg;
+    solar.color = color;
+    solar.teta = angle;
+    pw->addSolar(solar);
+    pw->repaint();
+}
 
+void QControlWidget::onClickedBtnClear(bool)
+{
+    pw->clear();
+    pw->repaint();
 }
 
 void QControlWidget::updateInfo()
@@ -43,6 +58,7 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     color_line = new QColorWidget(this);
     color_fone->setWidth(100);
     color_line->setWidth(100);
+    color_line->setColor(Qt::black);
     edit_pixel_size = new QLabelEdit(this);
     edit_pixel_size->setLabelText("Размер пикселя");
     edit_pixel_size->setEditText("1");
@@ -96,9 +112,9 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     group_alg = new QGroupBox("Выбор алгоритма", this);
     layout_alg = new QVBoxLayout(this);
     combobox_alg = new QComboBox(this);
-    combobox_alg->addItem("CDA");
-    combobox_alg->addItem("Брезенхем (int)");
+    combobox_alg->addItem("ЦДА");
     combobox_alg->addItem("Брезенхем (double)");
+    combobox_alg->addItem("Брезенхем (int)");
     combobox_alg->addItem("Брезенхем со сглаживанием");
     combobox_alg->addItem("Стандартный(Qt)");
     layout_alg->addWidget(combobox_alg);
@@ -106,17 +122,22 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
 
 
     //adding to main_layout
+    btn_clear = new QPushButton("Очистить экран");
     main_layout->addWidget(group_alg);
     main_layout->addWidget(group_colors);
     main_layout->addWidget(group_line);
     main_layout->addWidget(group_solar);
+    main_layout->addWidget(btn_clear);
     main_layout->addStretch();
-    this->setMinimumHeight(600);
+    this->setMinimumHeight(700);
 
     //slots and signals
     connect(this->btn_draw_line, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnDrawLine(bool)));
     connect(this->btn_draw_solar, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnDrawSolar(bool)));
     connect(this->btn_set_pixel_size, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnSetPixelSize(bool)));
+    connect(this->btn_clear, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnClear(bool)));
+    connect(this->color_fone, SIGNAL(colorChanged(QColor)), this, SLOT(onFoneColorChanges(QColor)));
+    connect(this->combobox_alg, SIGNAL(currentIndexChanged(int)), this, SLOT(onAlgCHange(int)));
 }
 
 void QControlWidget::onClickedBtnSetPixelSize(bool)
@@ -125,5 +146,18 @@ void QControlWidget::onClickedBtnSetPixelSize(bool)
 
     pw->setPixel_size(edit_pixel_size->getEditText().toInt());
     pw->repaint();
+}
+
+void QControlWidget::onFoneColorChanges(const QColor &color)
+{
+    pw->setFone_color(color);
+    qDebug() << color;
+    pw->repaint();
+}
+
+void QControlWidget::onAlgCHange(int num)
+{
+    qDebug()<< num;
+    this->sellected_alg =(alg_t) num;
 }
 
