@@ -13,13 +13,13 @@ QCoordsWidget::QCoordsWidget(QWidget *parent) : QWidget(parent)
 
     edit_x = new QLabelEdit(this);
     edit_x->setLabelText("X:");
-    edit_x->setEditText("0.0");
-    edit_x->setEditValidator(new QRegExpValidator(QRegExp("^[-+]?[0-9]{0,5}(\\.|,|$)[0-9]{0,4}$"),0));
+    edit_x->setEditText("0");
+    edit_x->setEditValidator(new QRegExpValidator(QRegExp("^[-+]?[0-9]{0,5}$"),0));
 
     edit_y = new QLabelEdit(this);
     edit_y->setLabelText("Y:");
-    edit_y->setEditText("0.0");
-    edit_y->setEditValidator(new QRegExpValidator(QRegExp("^[-+]?[0-9]{0,5}(\\.|,|$)[0-9]{0,4}$"),0));
+    edit_y->setEditText("0");
+    edit_y->setEditValidator(new QRegExpValidator(QRegExp("^[-+]?[0-9]{0,5}$"),0));
 
     layout->setSpacing(0);
     layout->addWidget(label);

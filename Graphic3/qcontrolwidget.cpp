@@ -13,7 +13,10 @@ void QControlWidget::setPw(QPaintWidget *value)
 
 void QControlWidget::onClickedBtnDrawLine(bool)
 {
-    line_t line = {.pb=cw_point_1->getPoint(), .pe=cw_point_2->getPoint(), .color=color_line->getColor(), .alg=sellected_alg};
+    QColor color = color_line->getColor();
+    if (rbn_fone_color->isChecked())
+        color = color_fone->getColor();
+    line_t line = {.pb=cw_point_1->getPoint(), .pe=cw_point_2->getPoint(), .color=color, .alg=sellected_alg};
     pw->addLine(line);
     pw->repaint();
 }
@@ -22,6 +25,8 @@ void QControlWidget::onClickedBtnDrawSolar(bool)
 {
     double angle = edit_angle_delta->getEditText().toDouble();
     QColor color = color_line->getColor();
+    if (rbn_fone_color->isChecked())
+        color = color_fone->getColor();
     solar_t solar = {};
     solar.alg = sellected_alg;
     solar.color = color;
@@ -56,8 +61,8 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     layout_colors = new QVBoxLayout(this);
     color_fone = new QColorWidget(this);
     color_line = new QColorWidget(this);
-    color_fone->setWidth(100);
-    color_line->setWidth(100);
+    color_fone->setWidth(50);
+    color_line->setWidth(50);
     color_line->setColor(Qt::black);
     edit_pixel_size = new QLabelEdit(this);
     edit_pixel_size->setLabelText("Размер пикселя");
@@ -71,11 +76,15 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     layout_colors->addWidget(btn_set_pixel_size);
     QHBoxLayout *layout1 = new QHBoxLayout(this);
     layout1->addWidget(lbl_color_fone);
+    layout1->addStretch(10);
     layout1->addWidget(color_fone);
+    layout1->addStretch(70);
     layout_colors->addLayout(layout1);
+    rbn_fone_color = new QRadioButton("фоном");
     QHBoxLayout *layout2 = new QHBoxLayout(this);
     layout2->addWidget(lbl_color_line);
     layout2->addWidget(color_line);
+    layout2->addWidget(rbn_fone_color);
     layout_colors->addLayout(layout2);
     layout_colors->addStretch();
     group_colors->setLayout(layout_colors);
@@ -84,7 +93,9 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     group_line = new QGroupBox("Рисование линии", this);
     layout_line = new QVBoxLayout(this);
     cw_point_1 = new QCoordsWidget(this);
+    cw_point_1->setLabelText("Точка 1:");
     cw_point_2 = new QCoordsWidget(this);
+    cw_point_2->setLabelText("Точка 2:");
     btn_draw_line = new QPushButton("Нарисовать");
 
     layout_line->addWidget(cw_point_1);
@@ -117,6 +128,7 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     combobox_alg->addItem("Брезенхем (int)");
     combobox_alg->addItem("Брезенхем со сглаживанием");
     combobox_alg->addItem("Стандартный(Qt)");
+
     layout_alg->addWidget(combobox_alg);
     group_alg->setLayout(layout_alg);
 
@@ -160,4 +172,3 @@ void QControlWidget::onAlgCHange(int num)
     qDebug()<< num;
     this->sellected_alg =(alg_t) num;
 }
-

@@ -7,8 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    //this->setGeometry(40,40, 1300, 650);
-    this->setGeometry(30, 30, 1300, 680);
+    this->setGeometry(MAIN_X1, MAIN_Y1, MAIN_X2, MAIN_Y2);
 
     QFont font = this->font();
     font.setPointSize(FONT_SIZE);

@@ -17,6 +17,7 @@
 #include <QComboBox>
 #include <QMessageBox>
 #include <QMap>
+#include <QRadioButton>
 #include <float.h>
 #include "qcoordswidget.h"
 #include "qlabeledit.h"
@@ -41,6 +42,7 @@ private:
     QLabel *lbl_color_line;
     QLabelEdit *edit_pixel_size;
     QPushButton *btn_set_pixel_size;
+    QRadioButton *rbn_fone_color;
 
     //Line
     QGroupBox *group_line;

@@ -20,6 +20,7 @@ enum alg_t
     alg_Bresenham_int,
     alg_Bresenham_alias,
     alg_Qt_std,
+    alg_Vu,
 };
 
 struct line_t
@@ -48,6 +49,7 @@ private:
     time_t drawBresenhamDLine(const QPoint &pb, const QPoint &pe, const QColor &color, QPainter &painter);
     time_t drawBresenhamILine(const QPoint &pb, const QPoint &pe, const QColor &color, QPainter &painter);
     time_t drawBresenhamALine(const QPoint &pb, const QPoint &pe, const QColor &color, QPainter &painter);
+    //time_t drawVuLine(const QPoint &pb, const QPoint &pe, const QColor &color, QPainter &painter);
     void drawLine(const line_t &line, QPainter &painter);
     void drawSolar(const solar_t &solar, QPainter &painter);
 private:
