@@ -122,18 +122,45 @@ time_t QPaintWidget::drawBresenhamCircle(const ellipse_t &circle, QPainter &pain
     return 0;
 }
 
-time_t QPaintWidget::drawMinPointEllipse(const ellipse_t &ellipse, QPainter &painter)
+time_t QPaintWidget::drawMidPointEllipse(const ellipse_t &ellipse, QPainter &painter)
 {
+    painter.setPen(QPen(ellipse.color));
+    int x_c = ellipse.pc.x();
+    int y_c = ellipse.pc.y();
+    int a2 = ellipse.a * ellipse.a;
+    int b2 = ellipse.b * ellipse.b;\
+    int a22 = 2 * a2;
+    int b22 = 2 * b2;
+    int x_max = ((double) a2)/sqrt(a2+b2);
+
+    int x = 0, y = ellipse.b;
+    int dx = 0;
+    int teta = - a22 * y;
+    int f = (b2-a2*y + 1/4 * a2);
+    for (x = 0; x <= x_max; ++x)
+    {
+        draw_4_pixels(x_c, y_c, x, y, painter);
+        if (f >= 0)
+        {
+            y--;
+            teta += a22;
+            f += teta;
+        }
+        dx += b22;
+        f += b2 + dx;
+    }
+
     return 0;
 }
 
-time_t QPaintWidget::drawMinPointCircle(const ellipse_t &circle, QPainter &painter)
+time_t QPaintWidget::drawMidPointCircle(const ellipse_t &circle, QPainter &painter)
 {
     return 0;
 }
 
 void QPaintWidget::drawEllipse(const ellipse_t &ellipse, QPainter &painter)
 {
+    qDebug()<< ellipse.alg;
     switch (ellipse.alg)
     {
     case alg_canon:
@@ -146,7 +173,7 @@ void QPaintWidget::drawEllipse(const ellipse_t &ellipse, QPainter &painter)
         this->drawBresenhamEllipse(ellipse, painter);
         break;
     case alg_mid_point:
-        this->drawMinPointEllipse(ellipse, painter);
+        this->drawMidPointEllipse(ellipse, painter);
         break;
     case alg_Qt_std:
         painter.setPen(QPen(ellipse.color));
@@ -169,7 +196,7 @@ void QPaintWidget::drawCircle(const ellipse_t &circle, QPainter &painter)
         this->drawBresenhamCircle(circle, painter);
         break;
     case alg_mid_point:
-        this->drawMinPointCircle(circle, painter);
+        this->drawMidPointCircle(circle, painter);
         break;
     case alg_Qt_std:
         painter.setPen(QPen(circle.color));

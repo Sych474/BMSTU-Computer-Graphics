@@ -16,8 +16,8 @@ enum alg_t
 {
     alg_canon,
     alg_param,
-    alg_Bresenham,
     alg_mid_point,
+    alg_Bresenham,
     alg_Qt_std,
 };
 
@@ -56,8 +56,8 @@ private:
     time_t drawBresenhamEllipse(const ellipse_t &ellipse, QPainter &painter);
     time_t drawBresenhamCircle(const ellipse_t &circle, QPainter &painter);
 
-    time_t drawMinPointEllipse(const ellipse_t &ellipse, QPainter &painter);
-    time_t drawMinPointCircle(const ellipse_t &circle, QPainter &painter);
+    time_t drawMidPointEllipse(const ellipse_t &ellipse, QPainter &painter);
+    time_t drawMidPointCircle(const ellipse_t &circle, QPainter &painter);
 
     void drawEllipse(const ellipse_t &ellipse, QPainter &painter);
     void drawCircle(const ellipse_t &circle, QPainter &painter);

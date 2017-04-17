@@ -75,34 +75,6 @@ void QControlWidget::onClickedBtnDrawEllipseSolar(bool)
     pw->repaint();
 }
 
-/*
-void QControlWidget::onClickedBtnDrawLine(bool)
-{
-    QColor color = color_line->getColor();
-    if (rbn_fone_color->isChecked())
-        color = color_fone->getColor();
-    line_t line = {.pb=cw_point_1->getPoint(), .pe=cw_point_2->getPoint(), .color=color, .alg=sellected_alg};
-    pw->addLine(line);
-    pw->repaint();
-}
-*/
-
-/*
-void QControlWidget::onClickedBtnDrawSolar(bool)
-{
-    double angle = edit_angle_delta->getEditText().toDouble();
-    QColor color = color_line->getColor();
-    if (rbn_fone_color->isChecked())
-        color = color_fone->getColor();
-    solar_t solar = {};
-    solar.alg = sellected_alg;
-    solar.color = color;
-    solar.teta = angle;
-    pw->addSolar(solar);
-    pw->repaint();
-}
-*/
-
 void QControlWidget::onClickedBtnClear(bool)
 {
     pw->clear();
