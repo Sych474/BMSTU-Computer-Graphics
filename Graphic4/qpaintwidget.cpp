@@ -169,6 +169,44 @@ time_t QPaintWidget::drawMidPointEllipse(const ellipse_t &ellipse, QPainter &pai
 
 time_t QPaintWidget::drawMidPointCircle(const ellipse_t &circle, QPainter &painter)
 {
+    painter.setPen(QPen(circle.color));
+    int x_c = circle.pc.x();
+    int y_c = circle.pc.y();
+    int r2 = circle.a * circle.a;
+    int r22 = 2 * r2;
+    int x_max = circle.a/sqrt(2);
+
+    int x = 0, y = circle.b;
+    int dx = 0;
+    int teta = - r22 * y;
+    int f = (r2 - r2*y + 0.25 * r2);
+    for (x = 0; x <= x_max; ++x)
+    {
+        draw_4_pixels(x_c, y_c, x, y, painter);
+        if (f >= 0)
+        {
+            y--;
+            teta += r22;
+            f += teta;
+        }
+        dx += r22;
+        f += r2 + dx;
+    }
+    teta = r22 * x;
+    int dy = -r22 * y;
+    f += -r2 * (x+0.75) - r2 * (y-0.75);
+    for (; y >= 0; --y)
+    {
+        draw_4_pixels(x_c, y_c, x, y, painter);
+        if (f < 0)
+        {
+            x++;
+            teta += r22;
+            f += teta;
+        }
+        dy += r22;
+        f += r2 + dy;
+    }
     return 0;
 }
 
