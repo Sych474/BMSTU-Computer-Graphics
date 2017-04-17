@@ -131,12 +131,12 @@ time_t QPaintWidget::drawMidPointEllipse(const ellipse_t &ellipse, QPainter &pai
     int b2 = ellipse.b * ellipse.b;\
     int a22 = 2 * a2;
     int b22 = 2 * b2;
-    int x_max = ((double) a2)/sqrt(a2+b2);
+    int x_max = a2/sqrt(a2+b2);
 
     int x = 0, y = ellipse.b;
     int dx = 0;
     int teta = - a22 * y;
-    int f = (b2-a2*y + 1/4 * a2);
+    int f = (b2 - a2*y + 0.25 * a2);
     for (x = 0; x <= x_max; ++x)
     {
         draw_4_pixels(x_c, y_c, x, y, painter);
@@ -149,7 +149,21 @@ time_t QPaintWidget::drawMidPointEllipse(const ellipse_t &ellipse, QPainter &pai
         dx += b22;
         f += b2 + dx;
     }
-
+    teta = b22 * x;
+    int dy = -a22 * y;
+    f += -b2 * (x+0.75) - a2 * (y-0.75);
+    for (; y >= 0; --y)
+    {
+        draw_4_pixels(x_c, y_c, x, y, painter);
+        if (f < 0)
+        {
+            x++;
+            teta += b22;
+            f += teta;
+        }
+        dy += a22;
+        f += a2 + dy;
+    }
     return 0;
 }
 
