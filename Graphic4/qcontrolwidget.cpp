@@ -224,7 +224,7 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     edit_ellipse_b_beg = new QLabelEdit(this);
     edit_ellipse_b_beg->setLabelText("Bн");
     edit_ellipse_b_beg->setEditValidator(new QRegExpValidator(QRegExp("^[-+]?[0-9]{0,5}$"),0));
-    edit_ellipse_b_beg->setEditText("100");
+    edit_ellipse_b_beg->setEditText("50");
 
     edit_ellipse_count = new QLabelEdit(this);
     edit_ellipse_count->setLabelText("N");

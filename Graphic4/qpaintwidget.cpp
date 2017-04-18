@@ -101,12 +101,12 @@ time_t QPaintWidget::drawParamCircle(const ellipse_t &circle, QPainter &painter)
     int x_c = circle.pc.x();
     int y_c = circle.pc.y();
     int x, y;
-    double dt = 1.0 / (double) circle.a;
+    double dt = 1.0 / circle.a;
     double max = M_PI_2 + ALG_EPS;
-    for (double alpfa = 0; alpfa < max; alpfa += dt)
+    for (double alpfa = 0; alpfa <= max; alpfa += dt)
     {
-        x = round(circle.a * sin(alpfa));
-        y = round(circle.b * cos(alpfa));
+        x = round(circle.a * cos(alpfa));
+        y = round(circle.b * sin(alpfa));
         draw_4_pixels(x_c, y_c, x, y, painter);
     }
     return 0;
@@ -114,11 +114,113 @@ time_t QPaintWidget::drawParamCircle(const ellipse_t &circle, QPainter &painter)
 
 time_t QPaintWidget::drawBresenhamEllipse(const ellipse_t &ellipse, QPainter &painter)
 {
+    painter.setPen(QPen(ellipse.color));
+    int x_c = ellipse.pc.x();
+    int y_c = ellipse.pc.y();
+
+    int a2 = ellipse.a * ellipse.a;
+    int b2 = ellipse.b * ellipse.b;
+    int a22 = 2 * a2;
+    int b22 = 2 * b2;
+
+    int x = 0, y = ellipse.b;
+
+    long long int err = a2 + b2 - a22 * y;
+    long long int err1, err2;
+    while (y >= 0)
+    {
+        draw_4_pixels(x_c, y_c, x, y, painter);
+        if (err < 0)
+        {
+            err1 = 2 * err + a22 * y - a2;
+            if (err1 < 0)
+            {
+                ++x;
+                err += b22*x + b2;
+            }
+            else
+            {
+                --y;
+                ++x;
+                err += b22*x + b2 + a2 - a22*y;
+            }
+        }
+        else if (err > 0)
+        {
+            err2 = 2 * err - b22 * x - b2;
+            if (err2 <= 0)
+            {
+                --y;
+                ++x;
+                err += b22*x + b2 + a2 - a22*y;
+            }
+            else
+            {
+                --y;
+                err += a2 - a22*y;
+            }
+        }
+        else
+        {
+            --y;
+            ++x;
+            err += b22*x + b2 + a2 - a22*y;
+        }
+    }
+
     return 0;
 }
 
 time_t QPaintWidget::drawBresenhamCircle(const ellipse_t &circle, QPainter &painter)
 {
+    painter.setPen(QPen(circle.color));
+    int x_c = circle.pc.x();
+    int y_c = circle.pc.y();
+    int x = 0, y = circle.a;
+
+    int err = 2 * (1 - circle.a);
+    int err1, err2;
+    while (y >= 0)
+    {
+        draw_4_pixels(x_c, y_c, x, y, painter);
+        if (err < 0)
+        {
+            err1 = 2 * err + 2 * y - 1;
+            if (err1 <= 0)
+            {
+                x++;
+                err += 2*x + 1;
+            }
+            else
+            {
+                x++;
+                y--;
+                err += 2 * (x - y + 1);
+            }
+        }
+        else if (err > 0)
+        {
+            err2 = 2 * err - 2 * x - 1;
+            if (err2 <= 0)
+            {
+                x++;
+                y--;
+                err += 2 * (x - y + 1);
+            }
+            else
+            {
+                y--;
+                err += -2*y + 1;
+            }
+        }
+        else
+        {
+            x++;
+            y--;
+            err += 2 * (x - y + 1);
+        }
+    }
+
     return 0;
 }
 

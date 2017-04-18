@@ -12,7 +12,7 @@
 #define ANS_MAX_WIDTH 800
 #define PAINT_FONT_SIZE 12
 #define EPS 0.00001
-#define ALG_EPS 0.1
+#define ALG_EPS 0.001
 
 #define MAIN_X1 0
 #define MAIN_Y1 30
