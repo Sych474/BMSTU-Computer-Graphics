@@ -24,8 +24,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    qcolorwidget.cpp \
+    qcoordswidget.cpp \
+    qlabeledit.cpp \
+    qpaintwidget.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    config.h \
+    errors.h \
+    qcolorwidget.h \
+    qcoordswidget.h \
+    qlabeledit.h \
+    qpaintwidget.h
 
 FORMS    += mainwindow.ui
+
+DISTFILES += \
+    Graphic6.pro.user

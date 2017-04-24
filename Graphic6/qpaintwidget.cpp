@@ -13,16 +13,6 @@ void QPaintWidget::setFill_color(const QColor &value)
     paint();
 }
 
-int QPaintWidget::getPixel_size() const
-{
-    return pixel_size;
-}
-
-void QPaintWidget::setPixel_size(int value)
-{
-    pixel_size = value;
-}
-
 QColor QPaintWidget::getFone_color() const
 {
     return fone_color;
@@ -59,7 +49,7 @@ void QPaintWidget::setFace_color(const QColor &value)
 void QPaintWidget::add_point(const QPoint &P)
 {
     need_point = true;
-    p = P;
+    start_p = P;
     paint();
 }
 
@@ -78,22 +68,6 @@ void QPaintWidget::add_edge(edge_t edge)
 
 void QPaintWidget::end_poligon()
 {
-    for (int i = 0; i < new_edges.length(); ++i)
-    {
-        edges.append(new_edges[i]);
-    }
-    new_edges.clear();
-    paint();
-}
-
-int QPaintWidget::getSeparator_x() const
-{
-    return separator_x;
-}
-
-void QPaintWidget::setSeparator_x(int value)
-{
-    separator_x = value;
     paint();
 }
 
@@ -107,22 +81,21 @@ void QPaintWidget::setState(const state_t &value)
     state = value;
 }
 
-QColor QPaintWidget::getSep_color() const
+QPoint QPaintWidget::getFill_point() const
 {
-    return sep_color;
+    return fill_point;
 }
 
-void QPaintWidget::setSep_color(const QColor &value)
+void QPaintWidget::setFill_point(const QPoint &value)
 {
-    sep_color = value;
+    need_fill_point = true;
+    fill_point = value;
     paint();
 }
 
 void QPaintWidget::drawEdge(QPainter &painter, const edge_t &edge)
 {
     drawBresenhamLine(edge.p1, edge.p2, edge.color, painter);
-    //painter.setPen(QPen(face_color));
-    //painter.drawLine(edge.p1/pixel_size, edge.p2/pixel_size);
 }
 
 void QPaintWidget::drawPoligon(QImage &image)
@@ -140,25 +113,26 @@ void QPaintWidget::drawPoligon(QImage &image)
 
 void QPaintWidget::drawPoint(QImage &image)
 {
-    if (need_point)
-    {
-        QPainter painter;
-        painter.begin(&image);
+    if (!need_point) return;
 
-        painter.setPen(face_color);
-        painter.drawPoint(p);
-
-        painter.end();
-    }
-}
-
-void QPaintWidget::drawSeparator(QImage &image)
-{
     QPainter painter;
     painter.begin(&image);
 
-    painter.setPen(sep_color);
-    painter.drawLine(separator_x, 0, separator_x, 800);
+    painter.setPen(face_color);
+    painter.drawPoint(start_p);
+
+    painter.end();
+}
+
+void QPaintWidget::drawFillPoint(QImage &image)
+{
+    if (!need_fill_point) return;
+
+    QPainter painter;
+    painter.begin(&image);
+
+    painter.setPen(fill_color);
+    painter.drawPoint(fill_point);
 
     painter.end();
 }
@@ -234,208 +208,168 @@ void QPaintWidget::paint_point(int x, int y, QPainter &painter, QImage &image)
     painter.drawPoint(x, y);
 }
 
-void QPaintWidget::_fillPoligon(QPainter &painter, QImage &image)
+void QPaintWidget::_fillPoligon(QPainter &painter, QImage &image, QPoint &start_p)
 {
-    for (int i = 0; i < edges.length(); ++i)
+    painter.setPen(fill_color);
+    QStack<QPoint> stack;
+    stack.push(start_p);
+
+    while (!stack.isEmpty())
     {
-        int x1 = edges[i].p1.x()/pixel_size;
-        int x2 = edges[i].p2.x()/pixel_size;
-        int y1 = edges[i].p1.y()/pixel_size;
-        int y2 = edges[i].p2.y()/pixel_size;
-        int dy = y2 - y1;
-        int dx = x2 - x1;
-        int x_separator = separator_x/pixel_size;
-
-        if (dy == 0) drawEdge(painter, edges[i]);
-
-        double k = ((double) dx)/ dy;
-        bool f1 = x1 < x_separator;
-        bool f2 = x2 < x_separator;
-
-        if (f1 && f2)
+        QPoint curr = stack.pop();
+        int x_p = curr.x();
+        int y_p = curr.y();
+        painter.drawPoint(curr);
+        int x = x_p - 1;
+        while (image.pixelColor(x, y_p) != face_color)
         {
-            for (int y = y1; y < y2; ++y)
+            painter.drawPoint(x, y_p);
+            --x;
+        }
+        int x_left = x + 1;
+        x = x_p + 1;
+        while (image.pixelColor(x, y_p) != face_color)
+        {
+            painter.drawPoint(x, y_p);
+            ++x;
+        }
+        int x_right = x - 1;
+
+        bool flag = false;
+        QColor tmp_color;
+        for (x = x_left; x <= x_right; ++x)
+        {
+            tmp_color = image.pixelColor(x, y_p + 1);
+            if(tmp_color != face_color && tmp_color != fill_color)
             {
-                int x_start = round(k * (y - y1)) + x1;
-                for (int x = x_start; x < x_separator; ++x)
+                flag = true;
+            }
+            else
+            {
+                if (flag)
                 {
-                    paint_point(x, y, painter, image);
+                    stack.push(QPoint(x - 1, y_p + 1));
                 }
+                flag = false;
             }
         }
-        else if (!f1 && !f2)
+        if (flag)
         {
-            for (int y = y1; y < y2; ++y)
+            stack.push(QPoint(x_right, y_p + 1));
+        }
+        flag = false;
+        for (x = x_left; x <= x_right; ++x)
+        {
+            tmp_color = image.pixelColor(x, y_p - 1);
+            if(tmp_color != face_color && tmp_color != fill_color)
             {
-                int x_start = round(k * (y - y1)) + x1;
-                for (int x = x_start; x > x_separator; --x)
+                flag = true;
+            }
+            else
+            {
+                if (flag)
                 {
-                    paint_point(x, y, painter, image);
+                    stack.push(QPoint(x - 1, y_p - 1));
                 }
+                flag = false;
             }
         }
-        else if (f1 && !f2)
+        if (flag)
         {
-            int y_sep = round(1/k * (x_separator - x1)) + y1;
-            for (int y = y1; y < y_sep; ++y)
-            {
-                int x_start = round(k * (y - y1)) + x1;
-                for (int x = x_start; x < x_separator; ++x)
-                {
-                    paint_point(x, y, painter, image);
-                }
-            }
-            for (int y = y_sep; y < y2; ++y)
-            {
-                int x_start = round(k * (y - y1)) + x1;
-                for (int x = x_start; x > x_separator; --x)
-                {
-                    paint_point(x, y, painter, image);
-                }
-            }
-        }
-        else
-        {
-            int y_sep = round(1/k * (x_separator - x1)) + y1;
-            for (int y = y1; y < y_sep; ++y)
-            {
-                int x_start = round(k * (y - y1)) + x1;
-                for (int x = x_start; x > x_separator; --x)
-                {
-                    paint_point(x, y, painter, image);
-                }
-            }
-            for (int y = y_sep; y < y2; ++y)
-            {
-                int x_start = round(k * (y - y1)) + x1;
-                for (int x = x_start; x < x_separator; ++x)
-                {
-                    paint_point(x, y, painter, image);
-                }
-            }
+            stack.push(QPoint(x_right, y_p - 1));
         }
     }
+    repaint();
 }
 
-void QPaintWidget::_fillStepPoligon(QPainter &painter, QImage &image)
+void QPaintWidget::_fillStepPoligon(QPainter &painter, QImage &image, QPoint &start_p)
 {
-    for (int i = 0; i < edges.length(); ++i)
+    painter.setPen(fill_color);
+    QStack<QPoint> stack;
+    stack.push(start_p);
+
+    while (!stack.isEmpty())
     {
-        int x1 = edges[i].p1.x()/pixel_size;
-        int x2 = edges[i].p2.x()/pixel_size;
-        int y1 = edges[i].p1.y()/pixel_size;
-        int y2 = edges[i].p2.y()/pixel_size;
-        int dy = y2 - y1;
-        int dx = x2 - x1;
-        int x_separator = separator_x/pixel_size;
+        QPoint curr = stack.pop();
+        int x_p = curr.x();
+        int y_p = curr.y();
+        painter.drawPoint(curr);
+        int x = x_p - 1;
+        while (image.pixelColor(x, y_p) != face_color)
+        {
+            painter.drawPoint(x, y_p);
+            --x;
+        }
+        int x_left = x + 1;
+        x = x_p + 1;
+        while (image.pixelColor(x, y_p) != face_color)
+        {
+            painter.drawPoint(x, y_p);
+            ++x;
+        }
+        int x_right = x - 1;
 
-        if (dy == 0) drawEdge(painter, edges[i]);
-
-        double k = ((double) dx)/ dy;
-        bool f1 = x1 < x_separator;
-        bool f2 = x2 < x_separator;
-
-        if (f1 && f2)
+        bool flag = false;
+        QColor tmp_color;
+        for (x = x_left; x <= x_right; ++x)
         {
-            for (int y = y1; y < y2; ++y)
+            tmp_color = image.pixelColor(x, y_p + 1);
+            if(tmp_color != face_color && tmp_color != fill_color)
             {
-                int x_start = k * (y - y1) + x1;
-                for (int x = x_start; x < x_separator; ++x)
+                flag = true;
+            }
+            else
+            {
+                if (flag)
                 {
-                    paint_point(x, y, painter, image);
+                    stack.push(QPoint(x - 1, y_p + 1));
                 }
-                Sleep(SLEEP_TIME);
-                repaint();
+                flag = false;
             }
         }
-        else if (!f1 && !f2)
+        if (flag)
         {
-            for (int y = y1; y < y2; ++y)
+            stack.push(QPoint(x_right, y_p + 1));
+        }
+        repaint();
+        flag = false;
+        for (x = x_left; x <= x_right; ++x)
+        {
+            tmp_color = image.pixelColor(x, y_p - 1);
+            if(tmp_color != face_color && tmp_color != fill_color)
             {
-                int x_start = k * (y - y1) + x1;
-                for (int x = x_start; x > x_separator; --x)
+                flag = true;
+            }
+            else
+            {
+                if (flag)
                 {
-                    paint_point(x, y, painter, image);
+                    stack.push(QPoint(x - 1, y_p - 1));
                 }
-                Sleep(SLEEP_TIME);
-                repaint();
+                flag = false;
             }
         }
-        else if (f1 && !f2)
+        if (flag)
         {
-            int y_sep = 1/k * (x_separator - x1) + y1;
-            for (int y = y1; y < y_sep; ++y)
-            {
-                int x_start = k * (y - y1) + x1;
-                for (int x = x_start; x < x_separator; ++x)
-                {
-                    paint_point(x, y, painter, image);
-                }
-                Sleep(SLEEP_TIME);
-                repaint();
-            }
-            for (int y = y_sep; y < y2; ++y)
-            {
-                int x_start = k * (y - y1) + x1;
-                for (int x = x_start; x > x_separator; --x)
-                {
-                    paint_point(x, y, painter, image);
-                }
-                Sleep(SLEEP_TIME);
-                repaint();
-            }
+            stack.push(QPoint(x_right, y_p - 1));
         }
-        else
-        {
-            int y_sep = 1/k * (x_separator - x1) + y1;
-            for (int y = y1; y < y_sep; ++y)
-            {
-                int x_start = k * (y - y1) + x1;
-                for (int x = x_start; x > x_separator; --x)
-                {
-                    paint_point(x, y, painter, image);
-                }
-                Sleep(SLEEP_TIME);
-                repaint();
-            }
-            for (int y = y_sep; y < y2; ++y)
-            {
-                int x_start = k * (y - y1) + x1;
-                for (int x = x_start; x < x_separator; ++x)
-                {
-                    paint_point(x, y, painter, image);
-                }
-                Sleep(SLEEP_TIME);
-                repaint();
-            }
-        }
+        repaint();
     }
 }
 
 QPaintWidget::QPaintWidget(QWidget *parent) : QWidget(parent)
 {
-    int image_width = this->width()/pixel_size;
-    int image_height = this->height()/pixel_size;
-    qDebug() << image_width << image_height;
-    image_height = 800;
-    image_width = 1366;
-    im = QImage(image_width, image_height, QImage::Format_RGB32);
+    im = QImage(0, 0, QImage::Format_RGB32);
     im.fill(QColor(fone_color));
 }
 
 void QPaintWidget::paint()
 {
-    int image_width = this->width()/pixel_size;
-    int image_height = this->height()/pixel_size;
-    //Debug() << image_width << image_height;
-    //im = QImage(image_width, image_height, QImage::Format_RGB32);
     im.fill(QColor(fone_color));
 
     this->drawPoint(im);
     this->drawPoligon(im);
-    this->drawSeparator(im);
-
-    //im = im.scaled(image_width * pixel_size, image_height * pixel_size);
+    this->drawFillPoint(im);
 
     this->repaint();
 }
@@ -446,10 +380,9 @@ void QPaintWidget::fillPoligon()
     paint();
     QPainter painter;
     painter.begin(&im);
-    _fillPoligon(painter, im);
+    _fillPoligon(painter, im, fill_point);
     painter.end();
     drawPoligon(im);
-    this->repaint();
 }
 
 void QPaintWidget::stepFillPioligon()
@@ -458,7 +391,7 @@ void QPaintWidget::stepFillPioligon()
     paint();
     QPainter painter;
     painter.begin(&im);
-    _fillStepPoligon(painter, im);
+    _fillStepPoligon(painter, im, fill_point);
     painter.end();
     drawPoligon(im);
 }
@@ -505,4 +438,12 @@ void QPaintWidget::paintEvent(QPaintEvent *event)
     painter.drawImage(0,0,im);
     painter.end();
     state = fill_no;
+}
+
+void QPaintWidget::resizeEvent(QResizeEvent *event)
+{
+    int image_width = this->width();
+    int image_height = this->height();
+    im = QImage(image_width, image_height, QImage::Format_RGB32);
+    paint();
 }

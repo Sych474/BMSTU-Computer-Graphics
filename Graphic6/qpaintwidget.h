@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <vector>
 #include <QImage>
+#include <QStack>
 
 #include "config.h"
 #include "errors.h"
@@ -34,25 +35,24 @@ class QPaintWidget : public QWidget
 
 private:
     bool need_point = false;
-    QPoint p = QPoint(0, 0);
-    int separator_x = SEPARATOR_X;
-    int pixel_size = 1;
+    bool need_fill_point = false;
+    QPoint start_p = QPoint(0, 0);
+    QPoint fill_point;
+
     QVector<edge_t> edges;
-    QVector<edge_t> new_edges;
     QColor fone_color = Qt::white;
     QColor fill_color = Qt::darkRed;
     QColor face_color = Qt::black;
-    QColor sep_color = Qt::red;
     state_t state = fill_no;
     QImage im;
 private:
     void drawEdge(QPainter &painter, const edge_t &edge);
     void drawPoligon(QImage &image);
     void drawPoint(QImage &image);
-    void drawSeparator(QImage &image);
+    void drawFillPoint(QImage &image);
     void drawBresenhamLine(const QPoint &pb, const QPoint &pe, const QColor &color, QPainter &painter);
-    void _fillPoligon(QPainter &painter,QImage &image);
-    void _fillStepPoligon(QPainter &painter,QImage &image);
+    void _fillPoligon(QPainter &painter,QImage &image, QPoint &start_p);
+    void _fillStepPoligon(QPainter &painter,QImage &image, QPoint &start_p);
     void paint_point(int x, int y, QPainter &painter,QImage &image);
 public:
     explicit QPaintWidget(QWidget *parent = 0);
@@ -62,28 +62,23 @@ public:
     void stepFillPioligon();
     void clear(void);
 
-    int getPixel_size() const;
-    void setPixel_size(int value);
-
     QColor getFone_color() const;
     QColor getFill_color() const;
     QColor getFace_color() const;
-    QColor getSep_color() const;
     void setFone_color(const QColor &value);
     void setFill_color(const QColor &value);
     void setFace_color(const QColor &value);
-    void setSep_color(const QColor &value);
 
     void add_point(const QPoint &P);
     void add_edge(edge_t edge);
     void end_poligon();
 
-    int getSeparator_x() const;
-    void setSeparator_x(int value);
-
     state_t getState() const;
     void setState(const state_t &value);
 
+
+    QPoint getFill_point() const;
+    void setFill_point(const QPoint &value);
 
 signals:
 
@@ -91,6 +86,7 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent *event);
+    void resizeEvent(QResizeEvent *event);
 };
 
 #endif // QPAINTWIDGET_H

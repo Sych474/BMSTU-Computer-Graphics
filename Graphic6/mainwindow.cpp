@@ -50,12 +50,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->btn_close_poligon, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnClosePoligon(bool)));
     connect(this->btn_fill, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnPaint(bool)));
     connect(this->btn_step_fill, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnStepPaint(bool)));
-    connect(this->btn_set_separator, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnSetSeparator(bool)));
+    connect(this->btn_set_fill_point, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnSetFillPoint(bool)));
 
     connect(this->btn_clear, SIGNAL(clicked(bool)), this, SLOT(onClickedBtnClear(bool)));
     connect(this->color_fill, SIGNAL(colorChanged(QColor)), this, SLOT(onFillColorChanges(QColor)));
     connect(this->color_face, SIGNAL(colorChanged(QColor)), this, SLOT(onFaceColorChanges(QColor)));
-    connect(this->color_sep, SIGNAL(colorChanged(QColor)), this, SLOT(onSepColorChanges(QColor)));
+    connect(this->color_fone, SIGNAL(colorChanged(QColor)), this, SLOT(onFoneColorChanges(QColor)));
 }
 
 void MainWindow::CreatePaintGroup()
@@ -95,14 +95,14 @@ void MainWindow::CreateSettingsGroup()
     layout2->addWidget(lbl_color_face);
     layout2->addWidget(color_face);
 
-    color_sep = new QColorWidget(this);
-    color_sep->setWidth(50);
-    color_sep->setColor(Qt::red);
-    lbl_color_sep = new QLabel("Цвет перегородки");
+    color_fone = new QColorWidget(this);
+    color_fone->setWidth(50);
+    color_fone->setColor(Qt::white);
+    lbl_color_fone = new QLabel("Цвет фона");
 
     QHBoxLayout *layout3 = new QHBoxLayout(this);
-    layout3->addWidget(lbl_color_sep);
-    layout3->addWidget(color_sep);
+    layout3->addWidget(lbl_color_fone);
+    layout3->addWidget(color_fone);
 
     layout_colors->addLayout(layout1);
     layout_colors->addLayout(layout2);
@@ -113,7 +113,6 @@ void MainWindow::CreateSettingsGroup()
 
 void MainWindow::setPoint(const QPoint &point)
 {
-    qDebug() << "In";
     if (new_poligon)
     {
         scene_widget->add_point(point);
@@ -144,17 +143,14 @@ void MainWindow::CreatePoligonInputGroup()
     group_input = new QGroupBox("Ввод", this);
     layout_input = new QVBoxLayout(this);
     cw_point = new QCoordsWidget();
-    edit_separator_x = new QLabelEdit("Разделитель:");
-    edit_separator_x->setEditText(QString::number(SEPARATOR_X));
-    btn_set_separator = new QPushButton("Установить перегородку");
+    btn_set_fill_point = new QPushButton("Ввод затравочной точки");
     btn_next_point = new QPushButton("Поставить точку");
     btn_close_poligon = new QPushButton("Закончить многоугольник");
 
     layout_input->addWidget(cw_point);
     layout_input->addWidget(btn_next_point);
     layout_input->addWidget(btn_close_poligon);
-    layout_input->addWidget(edit_separator_x);
-    layout_input->addWidget(btn_set_separator);
+    layout_input->addWidget(btn_set_fill_point);
 
     group_input->setLayout(layout_input);
 }
@@ -184,11 +180,9 @@ void MainWindow::onClickedBtnClosePoligon(bool)
     closePoligon();
 }
 
-void MainWindow::onClickedBtnSetSeparator(bool)
+void MainWindow::onClickedBtnSetFillPoint(bool)
 {
-    int x = edit_separator_x->getEditText().toInt();
-    if (x >= 0 && x <= scene_widget->width())
-        scene_widget->setSeparator_x(x);
+    input_fill_point = true;
 }
 
 void MainWindow::onFillColorChanges(const QColor &color)
@@ -201,9 +195,9 @@ void MainWindow::onFaceColorChanges(const QColor &color)
     scene_widget->setFace_color(color);
 }
 
-void MainWindow::onSepColorChanges(const QColor &color)
+void MainWindow::onFoneColorChanges(const QColor &color)
 {
-    scene_widget->setSep_color(color);
+    scene_widget->setFone_color(color);
 }
 
 void MainWindow::onClickedBtnClear(bool)
@@ -214,6 +208,13 @@ void MainWindow::onClickedBtnClear(bool)
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     QPoint p = scene_widget->mapFromGlobal(QCursor::pos());
+    if (input_fill_point)
+    {
+        input_fill_point = false;
+        scene_widget->setFill_point(p);
+        return;
+    }
+
     if (event->button() == Qt::LeftButton)
     {
         if (shift_pressed && !ctrl_pressed)
@@ -234,6 +235,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    qDebug() << "Press";
     int key = event->key();
     if (key == Qt::Key_Shift)
     {
@@ -247,6 +249,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
+    qDebug() << "Release";
     int key = event->key();
     if (key == Qt::Key_Shift)
     {

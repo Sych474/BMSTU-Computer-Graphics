@@ -47,11 +47,11 @@ private:
     QGroupBox *group_colors;
     QVBoxLayout *layout_colors;
     QColorWidget *color_fill;
-    QColorWidget *color_sep;
+    QColorWidget *color_fone;
     QColorWidget *color_face;
 
     QLabel *lbl_color_fill;
-    QLabel *lbl_color_sep;
+    QLabel *lbl_color_fone;
     QLabel *lbl_color_face;
 
 
@@ -59,9 +59,8 @@ private:
     QGroupBox *group_input;
     QVBoxLayout *layout_input;
     QCoordsWidget *cw_point;
-    QLabelEdit *edit_separator_x;
 
-    QPushButton *btn_set_separator;
+    QPushButton *btn_set_fill_point;
     QPushButton *btn_next_point;
     QPushButton *btn_close_poligon;
 
@@ -73,11 +72,13 @@ private:
     QPushButton *btn_clear;
 
     //info
+    bool input_fill_point = false;
     bool new_poligon = true;
     bool shift_pressed = false;
     bool ctrl_pressed = false;
     QPoint prev_point;
     QPoint start_point;
+    QPoint fill_point;
 
 private:
     void updateInfo(void);
@@ -95,12 +96,12 @@ public slots:
     void onClickedBtnStepPaint(bool);
     void onClickedBtnSetPoint(bool);
     void onClickedBtnClosePoligon(bool);
-    void onClickedBtnSetSeparator(bool);
+    void onClickedBtnSetFillPoint(bool);
 
     void onClickedBtnClear(bool);
     void onFillColorChanges(const QColor &color);
     void onFaceColorChanges(const QColor &color);
-    void onSepColorChanges(const QColor &color);
+    void onFoneColorChanges(const QColor &color);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
