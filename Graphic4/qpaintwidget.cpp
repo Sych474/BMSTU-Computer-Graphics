@@ -9,14 +9,6 @@ void QPaintWidget::draw_4_pixels(int x_c, int y_c, int x, int y, QPainter &paint
     painter.drawPoint(x_c+x, y_c-y);
 }
 
-bool QPaintWidget::is_point(int dx, int dy)
-{
-    if (dx != 0 || dy != 0) return false;
-
-    return true;
-}
-
-
 time_t QPaintWidget::drawCanonEllipse(const ellipse_t &ellipse, QPainter &painter)
 {
     painter.setPen(QPen(ellipse.color));
@@ -30,12 +22,12 @@ time_t QPaintWidget::drawCanonEllipse(const ellipse_t &ellipse, QPainter &painte
     int x, y;
 
     int x_max = round( ((double)a2)/sqrt(a2+b2));
-    for (x = 0; x <= x_max; x+= 1)
+    for (x = 0; x <= x_max; ++x)
     {
         y = round(c1 * sqrt(a2 - x*x));
         draw_4_pixels(x_c, y_c, x, y, painter);
     }
-    for(y = round(c1 * sqrt(a2 - x_max*x_max)); y >= 0; y -= 1)
+    for(y = round(c1 * sqrt(a2 - x_max*x_max)); y >= 0; --y)
     {
         x = round(c2 * sqrt(b2 - y*y));
         draw_4_pixels(x_c, y_c, x, y, painter);
@@ -77,7 +69,9 @@ time_t QPaintWidget::drawParamEllipse(const ellipse_t &ellipse, QPainter &painte
     double a2 = ellipse.a * ellipse.a;
     double b2 = ellipse.b * ellipse.b;\
     double x_max = a2/sqrt(a2+b2);
-    double t_x_max = acos(x_max/ellipse.a) + ALG_EPS;
+    double y_max = round((double) ellipse.b/ (double) ellipse.a * sqrt(a2 - x*x));
+
+    double t_x_max = acos(x_max/sqrt(a2+b2)) + ALG_EPS;
 
     for (; alpfa >= t_x_max; alpfa -= dx)
     {
@@ -85,6 +79,7 @@ time_t QPaintWidget::drawParamEllipse(const ellipse_t &ellipse, QPainter &painte
         y = round(ellipse.b * sin(alpfa));
         draw_4_pixels(x_c, y_c, x, y, painter);
     }
+
     for (alpfa = t_x_max; alpfa >= -ALG_EPS ; alpfa -= dy)
     {
         x = round(ellipse.a * cos(alpfa));
@@ -280,7 +275,7 @@ time_t QPaintWidget::drawMidPointCircle(const ellipse_t &circle, QPainter &paint
 
     int x = 0, y = circle.b;
     int dx = 0;
-    int teta = - r22 * y;
+    int teta = - r22*y;
     int f = (r2 - r2*y + 0.25 * r2);
     for (x = 0; x <= x_max; ++x)
     {
@@ -314,7 +309,6 @@ time_t QPaintWidget::drawMidPointCircle(const ellipse_t &circle, QPainter &paint
 
 void QPaintWidget::drawEllipse(const ellipse_t &ellipse, QPainter &painter)
 {
-    qDebug()<< ellipse.alg;
     switch (ellipse.alg)
     {
     case alg_canon:

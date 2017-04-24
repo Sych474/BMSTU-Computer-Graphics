@@ -152,7 +152,7 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     layout_cercle->addStretch();
 
     //Circle_Solar
-    group_circle_solar = new QGroupBox("Рисование спектра", this);
+    group_circle_solar = new QGroupBox("Рисование спектра окружностей", this);
     layout_circle_solar = new QVBoxLayout(this);
     edit_circle_r_beg = new QLabelEdit(this);
     edit_circle_r_beg->setLabelText("Rн");
@@ -213,7 +213,7 @@ QControlWidget::QControlWidget(QWidget *parent) : QWidget(parent)
     layout_ellipse->addStretch();
 
     //Ellipse_Solar
-    group_ellipse_solar = new QGroupBox("Рисование спектра", this);
+    group_ellipse_solar = new QGroupBox("Рисование спектра эллипсов", this);
     layout_ellipse_solar = new QVBoxLayout(this);
 
     edit_ellipse_a_beg = new QLabelEdit(this);

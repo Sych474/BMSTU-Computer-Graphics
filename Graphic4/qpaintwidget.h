@@ -46,7 +46,7 @@ class QPaintWidget : public QWidget
 
 private:
     void draw_4_pixels(int x_c, int y_c, int x, int y, QPainter &painter);
-    bool is_point(int dx, int dy);
+
     time_t drawCanonEllipse(const ellipse_t &ellipse, QPainter &painter);
     time_t drawCanonCircle(const ellipse_t &circle, QPainter &painter);
 
